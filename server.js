@@ -19,6 +19,9 @@ const taskRoutes = require("./routes/taskRoutes");
 const dreamwallRoutes = require("./routes/dreamwallRoutes");
 const referralRoutes = require('./routes/referralRoutes');
 const socialRoutes = require("./routes/socialRoutes");
+const surveyRoutes = require("./routes/surveyRoutes");
+
+
 
 const PORT = process.env.PORT || 5001;
 
@@ -45,6 +48,8 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/dreamwall", dreamwallRoutes);
 app.use('/api/referrals', referralRoutes);
 app.use("/api/social", socialRoutes);
+app.use("/api/survey", surveyRoutes);
+
 
 // ✅ Start server
 app.listen(PORT, () => {
