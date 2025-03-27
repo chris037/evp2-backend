@@ -66,4 +66,29 @@ router.get("/status/:userId", (req, res) => {
   });
 });
 
+// ✅ Complete task route
+router.post("/complete", (req, res) => {
+    const { userId, taskName } = req.body;
+  
+    if (!userId || !taskName) {
+      return res.status(400).json({ error: "Missing userId or taskName" });
+    }
+  
+    const sql = `
+      INSERT INTO user_tasks (user_id, task_name, completed)
+      VALUES (?, ?, true)
+      ON DUPLICATE KEY UPDATE completed = true
+    `;
+  
+    db.query(sql, [userId, taskName], (err) => {
+      if (err) {
+        console.error("Error completing task:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+  
+      return res.status(200).json({ message: "Task marked as completed" });
+    });
+  });
+  
+
 module.exports = router;
