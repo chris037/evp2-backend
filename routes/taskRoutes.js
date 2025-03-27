@@ -95,9 +95,10 @@ router.get('/:userId', (req, res) => {
     const { userId } = req.params;
 
     const sql = `
-      SELECT task_name, completed 
+      SELECT task_name, MAX(completed) as completed
       FROM user_tasks 
       WHERE user_id = ?
+      GROUP BY task_name
     `;
 
     db.query(sql, [userId], (err, results) => {
@@ -109,6 +110,7 @@ router.get('/:userId', (req, res) => {
         res.status(200).json(results);
     });
 });
+
 
 
 module.exports = router;
