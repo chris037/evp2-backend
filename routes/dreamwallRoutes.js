@@ -53,42 +53,40 @@ router.get("/status/:userId", (req, res) => {
 });
 
 // 📌 Submit entry and mark task completed if approved
-router.post("/submit", upload.single("photo"), (req, res) => {
-    const { userId, title, caption } = req.body;
-    const photo = req.file ? `/uploads/${req.file.filename}` : null;
-  
-    if (!userId || !title || !caption || !photo) {
-      return res.status(400).send("All fields are required.");
+router.post("/submit", (req, res) => {
+  const { userId, title, caption, imageUrl } = req.body;
+
+  if (!userId || !title || !caption || !imageUrl) {
+    return res.status(400).json({ error: "All fields are required." });
+  }
+
+  const insertSql = `
+    INSERT INTO dreamwall_entries (user_id, title, caption, photo, status)
+    VALUES (?, ?, ?, ?, 'pending')
+  `;
+
+  db.query(insertSql, [userId, title, caption, imageUrl], (err, result) => {
+    if (err) {
+      console.error("Insert error:", err);
+      return res.status(500).json({ error: "Database error" });
     }
-  
-    const insertSql = `
-      INSERT INTO dreamwall_entries (user_id, title, caption, photo, status)
-      VALUES (?, ?, ?, ?, 'pending')
+
+    const insertTaskSql = `
+      INSERT INTO user_tasks (user_id, task_name, completed)
+      VALUES (?, 'Dreamwall/ Aspirational Wall', true)
+      ON DUPLICATE KEY UPDATE completed = true
     `;
-  
-    db.query(insertSql, [userId, title, caption, photo], (err, result) => {
-      if (err) {
-        console.error("Insert error:", err);
-        return res.status(500).send("Database error");
+
+    db.query(insertTaskSql, [userId], (err2) => {
+      if (err2) {
+        console.error("Task update error:", err2);
+        return res.status(500).json({ error: "Task insert failed" });
       }
-  
-      // ✅ Add the task as completed (but entry is still pending approval)
-      const insertTaskSql = `
-        INSERT INTO user_tasks (user_id, task_name, completed)
-        VALUES (?, 'Dreamwall/ Aspirational Wall', true)
-        ON DUPLICATE KEY UPDATE completed = true
-      `;
-  
-      db.query(insertTaskSql, [userId], (err2) => {
-        if (err2) {
-          console.error("Task update error:", err2);
-          return res.status(500).send("Task insert failed");
-        }
-  
-        res.status(200).send("Dreamwall entry submitted and task marked complete.");
-      });
+
+      res.status(200).json({ message: "Dreamwall entry submitted and task marked complete." });
     });
   });
+});
   
 // ✅ OPTIONAL: Auto-complete task after approval (admin would normally handle this)
 const completeTaskIfApproved = (userId) => {
