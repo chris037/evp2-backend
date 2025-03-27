@@ -17,6 +17,7 @@ const path = require("path");
 const userRoutes = require("./routes/userRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const dreamwallRoutes = require("./routes/dreamwallRoutes");
+const referralRoutes = require('./routes/referralRoutes');
 
 
 const PORT = process.env.PORT || 5001;
@@ -42,6 +43,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/dreamwall", dreamwallRoutes);
+app.use('/api/referrals', referralRoutes);
 
 // ✅ Start server
 app.listen(PORT, () => {
