@@ -4,10 +4,14 @@ const db = require('../db');
 
 // Submit a referral
 router.post('/submit', (req, res) => {
-    const { userId, referredEmail } = req.body;
-    if (!userId || !referredEmail) {
-        return res.status(400).json({ error: 'Missing required fields.' });
+    
+
+    const { userId, referrals } = req.body;
+
+    if (!userId || !Array.isArray(referrals) || referrals.length !== 5) {
+      return res.status(400).json({ error: "Missing required fields." });
     }
+
     const sql = 'INSERT INTO referrals (user_id, referred_email) VALUES (?, ?)';
     db.query(sql, [userId, referredEmail], (err, result) => {
         if (err) {
